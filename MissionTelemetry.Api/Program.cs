@@ -78,6 +78,12 @@ builder.Services.Configure<TelemetryOptions>(
 
 var app = builder.Build();
 
+using(var scope = app.Services.CreateScope())
+{
+    var db = scope .ServiceProvider.GetRequiredService<MissionTelemetry.Persistence.MissionDbContext>();
+    db.Database.Migrate();
+}
+
 // Middleware-Pipeline 
 app.UseHttpsRedirection();
 app.UseResponseCompression();
