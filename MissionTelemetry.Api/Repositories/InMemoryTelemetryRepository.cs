@@ -26,5 +26,14 @@ public sealed class InMemoryTelemetryRepository : ITelemetryRepository
     {
         while (_queue.TryDequeue(out _)) { }
     }
-}
 
+    public IReadOnlyList<string> GetKeys()
+    {
+        return _queue
+            .Where(f => f.Values is not null)
+            .SelectMany(f => f.Values.Keys)
+            .Distinct()
+            .OrderBy(k => k)
+            .ToList();
+    }
+}

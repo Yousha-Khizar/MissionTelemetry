@@ -9,5 +9,7 @@ public interface ITelemetryRepository
     IReadOnlyList<TelemetryFrame> GetRange(int skip, int take);
     void Clear();
     int Count { get; }
+
+    IReadOnlyList<string> GetKeys();
 }
 
