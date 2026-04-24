@@ -53,6 +53,13 @@ public sealed class TelemetryController : ControllerBase
 
     [HttpGet("count")]
     public ActionResult<long> GetCount() => Ok(_repo.Count);
+    
+    [HttpGet("keys")]
+    public ActionResult<IReadOnlyList<string>> GetKeys()
+    {
+        var keys = _repo.GetKeys();
+        return Ok(keys);
+    }
 
 
     private static TelemetryFrameDto MapToDto(TelemetryFrame f)
@@ -71,6 +78,8 @@ public sealed class TelemetryController : ControllerBase
         _repo.Clear();
         return NoContent();
     }
+
+
 
 }
 
