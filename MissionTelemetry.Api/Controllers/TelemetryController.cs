@@ -61,6 +61,34 @@ public sealed class TelemetryController : ControllerBase
         return Ok(keys);
     }
 
+    [HttpGet("by-key")]
+    public ActionResult<TelemetryKeySeriesDto> GetByKey([FromQuery] string key, [FromQuery] int take = 50)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return BadRequest("Query parameter 'key' is required.");
+
+        take = Math.Clamp(take, 1, 1000);
+
+        var values = _repo.GetByKey(key, take);
+
+        var dto = new TelemetryKeySeriesDto
+        {
+            Key = key,
+            Count = values.Count,
+            Items = values
+                .Select(v => new TelemetryValuePointDto
+                {
+                    TimeStamp = v.TimeStamp,
+                    Value = v.Value
+                })
+                .ToList()
+        };
+
+        return Ok(dto);
+
+
+    }
+
 
     private static TelemetryFrameDto MapToDto(TelemetryFrame f)
     => new TelemetryFrameDto

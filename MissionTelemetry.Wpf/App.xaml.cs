@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows;
 using MissionTelemetry.Core.Services;  // JsonDictionaryLoader, DataDrivenAlarmEvaluator
-// using MissionTelemetry.Core.Models; // falls du Model-Typen brauchst
+using MissionTelemetry.Core.ViewModels;
 
 namespace MissionTelemetry.Wpf
 {
@@ -14,13 +14,26 @@ namespace MissionTelemetry.Wpf
             var path = Path.Combine(AppContext.BaseDirectory, "mission_dict.json");
             var dict = new JsonDictionaryLoader().LoadFromFile(path);
 
-            // Data-driven Evaluator erzeugen (ersetzt: new AlarmEvaluator())
+            // Data-driven Evaluator erzeugen 
             IAlarmEvaluator evaluator = new DataDrivenAlarmEvaluator(dict);
 
-            // TODO: Wenn dein MainWindow ein ViewModel braucht, hier setzen:
-            var window = new MainWindow();
-            // Beispiel:
-            // window.DataContext = new TelemetryViewModel(evaluator, /* weitere deps */);
+            // Simulation + AlarmManager erzeugen
+            ITelemtrySource telemetrySource = new SimulatedTelemetrySource(1.0);
+            IProximitySource proximitySource = new SimulatedProximitySource(1.0);
+            IAlarmManager alarmManager = new AlarmManager();
+
+            //ViewModel 
+            var vm = new TelemetryViewModel(
+                telemetrySource,
+                evaluator,
+                proximitySource,
+                alarmManager);
+
+            // Fenster erzeugen und DataContext setzen
+            var window = new MainWindow
+            {
+                DataContext = vm
+            };
 
             window.Show();
         }

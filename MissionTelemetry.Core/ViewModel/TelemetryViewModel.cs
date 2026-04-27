@@ -92,8 +92,7 @@ public sealed class TelemetryViewModel : ObservableObject
         _source.FrameReceived += OnFrame;
         _prox.Snapshot += OnProximity;
 
-        _source.FrameReceived += OnFrame;
-        _prox.Snapshot += OnProximity;
+        
 
         StartCommand = new RelayCommand(Start, () => !IsRunning);
         StopCommand = new RelayCommand(Stop, () => IsRunning);
@@ -117,6 +116,8 @@ public sealed class TelemetryViewModel : ObservableObject
                 OnPropertyChanged(nameof(HighestSeverity));
             }
         }, () => SelectedAlarm != null);
+
+        Start();
     }
 
     private void Start() { _source.Start(); _prox.Start(); IsRunning = true; }

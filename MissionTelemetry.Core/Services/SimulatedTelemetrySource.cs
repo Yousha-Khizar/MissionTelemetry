@@ -17,7 +17,7 @@ namespace MissionTelemetry.Core.Services
         private double _voltage = 28.5, _current = 2.4, _boardTemp = 28.0, _snr = 18.0;
         private double _roll, _pitch, _yaw;
 
-        public event EventHandler<TelemetryFrame> FrameReceived;
+        public event EventHandler<TelemetryFrame>? FrameReceived;
         public bool IsRunning => _timer.Enabled;
 
         public SimulatedTelemetrySource(double hz = 1.0)                 // Event quelle für frames

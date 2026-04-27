@@ -148,10 +148,12 @@
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Header="Severity" DisplayMemberBinding="{Binding Severity}" Width="90"/>
-                                    <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="200"/>
-                                    <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="360"/>
+                                    <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="180"/>
+                                    <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="320"/>
+                                    <GridViewColumn Header="Value" DisplayMemberBinding="{Binding LastValue}" Width="80"/>
+                                    <GridViewColumn Header="Ack" DisplayMemberBinding="{Binding IsAcknowledged}" Width="70"/>
                                     <GridViewColumn Header="Count" DisplayMemberBinding="{Binding Count}" Width="60"/>
-                                    <GridViewColumn Header="Seen (UTC)" DisplayMemberBinding="{Binding LastSeenUtc}" Width="170"/>
+                                    <GridViewColumn Header="Seen (UTC)" DisplayMemberBinding="{Binding LastSeen}" Width="170"/>
                                 </GridView>
                             </ListView.View>
                         </ListView>
