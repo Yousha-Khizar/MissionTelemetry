@@ -88,4 +88,18 @@ public sealed class EfTelemetryRepository : ITelemetryRepository
 
         return frames;
     }
+
+    public IReadOnlyList<(DateTime TimeStamp, double Value)> GetByKey(string key, int take)
+    {
+        take = Math.Clamp(take, 1, 1000);
+
+        return _db.TelemetrySamples
+            .AsNoTracking()
+            .Where(s => s.Key == key)
+            .OrderByDescending(s => s.TimeStamp)
+            .Take(take)
+            .OrderBy(s => s.TimeStamp)
+            .Select(s => new ValueTuple<DateTime, double>(s.TimeStamp, s.Value))
+            .ToList();
+    }
 }

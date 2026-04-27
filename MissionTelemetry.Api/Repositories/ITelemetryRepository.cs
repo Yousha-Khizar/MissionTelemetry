@@ -11,5 +11,6 @@ public interface ITelemetryRepository
     int Count { get; }
 
     IReadOnlyList<string> GetKeys();
+    IReadOnlyList<(DateTime TimeStamp, double Value)> GetByKey(string key, int take);
 }
 

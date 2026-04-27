@@ -36,4 +36,18 @@ public sealed class InMemoryTelemetryRepository : ITelemetryRepository
             .OrderBy(k => k)
             .ToList();
     }
+
+    public IReadOnlyList<(DateTime TimeStamp, double Value)> GetByKey(string key, int take)
+    {
+        take = Math.Clamp(take, 1, 1000);
+
+        return _queue
+            .Where(f => f.Values is not null && f.Values.ContainsKey(key))
+            .Reverse()
+            .Take(take)
+            .Reverse()
+            .Select(f => (f.TimeStamp, f.Values[key]))
+            .ToList();
+
+    }
 }
