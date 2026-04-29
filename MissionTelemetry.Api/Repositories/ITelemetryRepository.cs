@@ -1,4 +1,5 @@
-﻿using MissionTelemetry.Core.Models;
+﻿using MissionTelemetry.Api.Dtos;
+using MissionTelemetry.Core.Models;
 
 namespace MissionTelemetry.Api.Repositories;
 
@@ -12,5 +13,7 @@ public interface ITelemetryRepository
 
     IReadOnlyList<string> GetKeys();
     IReadOnlyList<(DateTime TimeStamp, double Value)> GetByKey(string key, int take);
+
+    TelemetryStatsDto? GetStats(string key, int take);
 }
 

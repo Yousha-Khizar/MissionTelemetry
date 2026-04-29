@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MissionTelemetry.Api.Dtos;
 using MissionTelemetry.Core.Models;
 using MissionTelemetry.Persistence;
 
@@ -101,5 +102,32 @@ public sealed class EfTelemetryRepository : ITelemetryRepository
             .OrderBy(s => s.TimeStamp)
             .Select(s => new ValueTuple<DateTime, double>(s.TimeStamp, s.Value))
             .ToList();
+    }
+
+    public TelemetryStatsDto? GetStats(string key, int take)
+    {
+        take = Math.Clamp(take, 1, 1000);
+
+        var values = _db.TelemetrySamples
+        .AsNoTracking()
+        .Where(s => s.Key == key)
+        .OrderByDescending(s => s.TimeStamp)
+        .Take(take)
+        .OrderBy(s => s.TimeStamp)
+        .Select(s => s.Value)
+        .ToList();
+
+        if (values.Count == 0)
+            return null;
+
+        return new TelemetryStatsDto
+        {
+            Key = key,
+            Count = values.Count,
+            Latest = values[^1],
+            Min = values.Min(),
+            Max = values.Max(),
+            Average = values.Average()
+        };
     }
 }
