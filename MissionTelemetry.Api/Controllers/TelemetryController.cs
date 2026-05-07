@@ -89,6 +89,21 @@ public sealed class TelemetryController : ControllerBase
 
     }
 
+    [HttpGet("stats")]
+    public ActionResult<TelemetryStatsDto> GetStats([FromQuery] string key, [FromQuery] int take = 50)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return BadRequest("Query parameter 'key' is required");
+
+        take = Math.Clamp(take, 1, 1000);
+
+        var stats = _repo.GetStats(key, take);
+        if (stats is null)
+            return NotFound($"No telemetry values found or key '{key}'.");
+
+        return Ok(stats);
+    }
+
 
     private static TelemetryFrameDto MapToDto(TelemetryFrame f)
     => new TelemetryFrameDto
