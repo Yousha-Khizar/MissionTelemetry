@@ -11,7 +11,6 @@ namespace MissionTelemetry.Wpf
 {
     public partial class MainWindow
     {
-        
         private Brush HoloGrid => (Brush)FindResource("HoloCyanBrush");
         private Brush HoloRing => (Brush)FindResource("HoloGreenBrush");
         private Brush HoloArrow => (Brush)FindResource("HoloAmberBrush");
@@ -19,23 +18,41 @@ namespace MissionTelemetry.Wpf
         private Brush ContactWarn => (Brush)FindResource("HoloAmberBrush");
         private Brush ContactAlarm => (Brush)FindResource("ImperialRedBrush");
 
-        public MainWindow() { InitializeComponent(); }
+        private bool _radarBackgroundDrawn;
+        private DateTime _lastRadarOverlayUpdate = DateTime.MinValue;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
 
         private void RadarCanvas_Loaded(object sender, RoutedEventArgs e)
         {
-            CompositionTarget.Rendering += (_, __) => DrawRadar();
+            DrawRadarBackground();
+
+            CompositionTarget.Rendering += (_, __) =>
+            {
+                if (!_radarBackgroundDrawn)
+                    DrawRadarBackground();
+
+                // Overlay nur ca. alle 40 ms neu zeichnen (~25 FPS)
+                var now = DateTime.UtcNow;
+                if ((now - _lastRadarOverlayUpdate).TotalMilliseconds >= 40)
+                {
+                    DrawRadarOverlay();
+                    _lastRadarOverlayUpdate = now;
+                }
+            };
         }
 
-        private void DrawRadar()
+        private void DrawRadarBackground()
         {
-            if (DataContext is not TelemetryViewModel vm) return;
+            double W = RadarBackgroundCanvas.ActualWidth > 0 ? RadarBackgroundCanvas.ActualWidth : RadarBackgroundCanvas.Width;
+            double H = RadarBackgroundCanvas.ActualHeight > 0 ? RadarBackgroundCanvas.ActualHeight : RadarBackgroundCanvas.Height;
+            double cx = W / 2;
+            double cy = H / 2;
 
-            double W = RadarCanvas.ActualWidth > 0 ? RadarCanvas.ActualWidth : RadarCanvas.Width;
-            double H = RadarCanvas.ActualHeight > 0 ? RadarCanvas.ActualHeight : RadarCanvas.Height;
-            double cx = W / 2, cy = H / 2;
-            double scale = Math.Min(cx, cy) / vm.RadarRangeKm;
-
-            RadarCanvas.Children.Clear();
+            RadarBackgroundCanvas.Children.Clear();
 
             // Ringe
             int rings = 5;
@@ -53,11 +70,11 @@ namespace MissionTelemetry.Wpf
                 };
                 Canvas.SetLeft(circle, cx - r);
                 Canvas.SetTop(circle, cy - r);
-                RadarCanvas.Children.Add(circle);
+                RadarBackgroundCanvas.Children.Add(circle);
             }
 
             // Achsen
-            RadarCanvas.Children.Add(new Line
+            RadarBackgroundCanvas.Children.Add(new Line
             {
                 X1 = 0,
                 Y1 = cy,
@@ -68,7 +85,8 @@ namespace MissionTelemetry.Wpf
                 Opacity = 0.35,
                 Effect = (Effect)FindResource("HoloGlow")
             });
-            RadarCanvas.Children.Add(new Line
+
+            RadarBackgroundCanvas.Children.Add(new Line
             {
                 X1 = cx,
                 Y1 = 0,
@@ -80,17 +98,45 @@ namespace MissionTelemetry.Wpf
                 Effect = (Effect)FindResource("HoloGlow")
             });
 
-            // Kontakte
+            // Eigenes Fahrzeug
+            var self = new Ellipse
+            {
+                Width = 12,
+                Height = 12,
+                Fill = (Brush)FindResource("HoloCyanBrush"),
+                Effect = (Effect)FindResource("StrongGlow")
+            };
+            Canvas.SetLeft(self, cx - 6);
+            Canvas.SetTop(self, cy - 6);
+            RadarBackgroundCanvas.Children.Add(self);
+
+            _radarBackgroundDrawn = true;
+        }
+
+        private void DrawRadarOverlay()
+        {
+            if (DataContext is not TelemetryViewModel vm)
+                return;
+
+            double W = RadarOverlayCanvas.ActualWidth > 0 ? RadarOverlayCanvas.ActualWidth : RadarOverlayCanvas.Width;
+            double H = RadarOverlayCanvas.ActualHeight > 0 ? RadarOverlayCanvas.ActualHeight : RadarOverlayCanvas.Height;
+            double cx = W / 2;
+            double cy = H / 2;
+            double scale = Math.Min(cx, cy) / vm.RadarRangeKm;
+
+            RadarOverlayCanvas.Children.Clear();
+
             foreach (var c in vm.Proximity.ToList())
             {
                 // Body->Canvas: X (vorne) -> -Y(Canvas), Y (rechts) -> +X(Canvas)
                 double x = cx + c.Y_km * scale;
                 double y = cy - c.X_km * scale;
 
-                
                 Brush dotBrush = ContactNormal;
-                if (c.CPA_Dist_km < 3.0 || c.Distance_km < 5.0) dotBrush = ContactWarn;
-                if (c.CPA_Dist_km < 1.0 || c.Distance_km < 2.0) dotBrush = ContactAlarm;
+                if (c.CPA_Dist_km < 3.0 || c.Distance_km < 5.0)
+                    dotBrush = ContactWarn;
+                if (c.CPA_Dist_km < 1.0 || c.Distance_km < 2.0)
+                    dotBrush = ContactAlarm;
 
                 // Punkt
                 var dot = new Ellipse
@@ -105,9 +151,9 @@ namespace MissionTelemetry.Wpf
                 };
                 Canvas.SetLeft(dot, x - 4);
                 Canvas.SetTop(dot, y - 4);
-                RadarCanvas.Children.Add(dot);
+                RadarOverlayCanvas.Children.Add(dot);
 
-                // Velocity-Pfeil (1 km/s ≈ 28 px)
+                // Velocity-Pfeil
                 double velScalePx = 28.0;
                 double vx = c.Vy_kms * velScalePx;
                 double vy = -c.Vx_kms * velScalePx;
@@ -123,44 +169,37 @@ namespace MissionTelemetry.Wpf
                     Opacity = 0.95,
                     Effect = (Effect)FindResource("HoloGlow")
                 };
-                RadarCanvas.Children.Add(line);
+                RadarOverlayCanvas.Children.Add(line);
 
-                RadarCanvas.Children.Add(ArrowHead(x + vx, y + vy, x, y, 9, 26, HoloArrow));
+                RadarOverlayCanvas.Children.Add(ArrowHead(x + vx, y + vy, x, y, 9, 26, HoloArrow));
 
                 // Label
-                var label = new System.Windows.Controls.TextBlock
+                var label = new TextBlock
                 {
                     Text = $"#{c.Id}  {c.Distance_km:F1}km  {c.Bearing_deg:F0}°  CPA {c.CPA_Dist_km:F1}km @{(double.IsInfinity(c.TCPA_s) ? "∞" : $"{c.TCPA_s:F0}s")}",
                     Foreground = HoloGrid
                 };
                 Canvas.SetLeft(label, x + 10);
                 Canvas.SetTop(label, y - 12);
-                RadarCanvas.Children.Add(label);
+                RadarOverlayCanvas.Children.Add(label);
             }
-
-            // Eigenes Fahrzeug
-            var self = new Ellipse
-            {
-                Width = 12,
-                Height = 12,
-                Fill = (Brush)FindResource("HoloCyanBrush"),
-                Effect = (Effect)FindResource("StrongGlow")
-            };
-            Canvas.SetLeft(self, cx - 6);
-            Canvas.SetTop(self, cy - 6);
-            RadarCanvas.Children.Add(self);
         }
 
         private Polygon ArrowHead(double x2, double y2, double x1, double y1, double width, double length, Brush brush)
         {
-            double dx = x2 - x1, dy = y2 - y1;
+            double dx = x2 - x1;
+            double dy = y2 - y1;
             double L = Math.Sqrt(dx * dx + dy * dy);
             if (L < 1e-6) L = 1e-6;
-            dx /= L; dy /= L;
-            double qx = -dy, qy = dx;
+
+            dx /= L;
+            dy /= L;
+            double qx = -dy;
+            double qy = dx;
 
             var tip = new Point(x2, y2);
-            var bx = x2 - dx * length; var by = y2 - dy * length;
+            var bx = x2 - dx * length;
+            var by = y2 - dy * length;
             var p2 = new Point(bx + qx * width * 0.5, by + qy * width * 0.5);
             var p3 = new Point(bx - qx * width * 0.5, by - qy * width * 0.5);
 
