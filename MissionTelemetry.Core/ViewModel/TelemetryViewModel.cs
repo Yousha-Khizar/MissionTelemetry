@@ -37,6 +37,13 @@ public sealed class ProximityRow : ObservableObject
     public double Vx_kms { get; init; }
     public double Vy_kms { get; init; }
 }
+//DisplayMode
+public enum RadarDisplayMode
+{
+    Normal,
+    Forecast,
+    CriticalOnly,
+}
 
 public sealed class TelemetryViewModel : ObservableObject
 {
@@ -73,6 +80,14 @@ public sealed class TelemetryViewModel : ObservableObject
             if (Set(ref _isRunning, value))
             { StartCommand.RaiseCanExecuteChanged(); StopCommand.RaiseCanExecuteChanged(); }
         }
+    }
+
+    public Array RadarModes => Enum.GetValues(typeof(RadarDisplayMode));
+    private RadarDisplayMode _radarMode = RadarDisplayMode.Normal;
+    public RadarDisplayMode RadarMode
+    {
+        get => _radarMode;
+        set => Set(ref _radarMode, value);
     }
 
     private double _radarRangeKm = 30.0;

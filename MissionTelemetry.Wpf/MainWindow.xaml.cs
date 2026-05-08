@@ -126,7 +126,16 @@ namespace MissionTelemetry.Wpf
 
             RadarOverlayCanvas.Children.Clear();
 
-            foreach (var c in vm.Proximity.ToList())
+            var contacts = vm.Proximity.ToList();
+
+            if (vm.RadarMode == RadarDisplayMode.CriticalOnly)
+            {
+                contacts = contacts
+                    .Where(c => c.CPA_Dist_km < 3.0 || c.Distance_km < 5.0)
+                    .ToList();
+            }
+
+            foreach (var c in contacts)
             {
                 // Body->Canvas: X (vorne) -> -Y(Canvas), Y (rechts) -> +X(Canvas)
                 double x = cx + c.Y_km * scale;
