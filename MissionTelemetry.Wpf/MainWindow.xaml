@@ -165,64 +165,74 @@
             <!-- Rechts: Radar + Proximity -->
             <StackPanel Grid.Column="1">
                 <!-- Radar -->
-                <Border Margin="0,0,0,10" Padding="10" CornerRadius="10"
-                        Background="#0E1117" BorderBrush="#2A2F3A" BorderThickness="1"
-                        Effect="{StaticResource StrongGlow}">
-                    <StackPanel>
-                        <TextBlock Text="HOLOGRAPHIC RADAR"
-                                    FontSize="16"
-                                    Foreground="{StaticResource HoloCyanBrush}"/>
+                <Expander Header="RADAR"
+                          IsExpanded="True"
+                          Margin="0,0,0,10"
+                          Foreground="{StaticResource HoloCyanBrush}">
+                    <Border Padding="10"
+                            CornerRadius="10"
+                            Background="#0E1117"
+                            BorderBrush="#2A2F3A"
+                            BorderThickness="1"
+                            Effect="{StaticResource StrongGlow}">
+                        <StackPanel>
+                            <Border Margin="0,10,0,0"
+                                    BorderBrush="#334"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Background="#0C1016"
+                                    HorizontalAlignment="Center">
+                                <Grid Width="620" Height="620">
+                                    <!-- Statische Ebene -->
+                                    <Canvas Name="RadarBackgroundCanvas"
+                                            Width="620"
+                                            Height="620"
+                                            IsHitTestVisible="False"/>
 
-                        <Border Margin="0,10,0,0"
-                                BorderBrush="#334"
-                                BorderThickness="1"
-                                CornerRadius="10"
-                                Background="#0C1016">
-                            <Grid Width="420" Height="420">
-                                <!-- Statische Ebene -->
-                                <Canvas Name="RadarBackgroundCanvas"
-                                        Width="420"
-                                        Height="420"
-                                        IsHitTestVisible="False"/>
+                                    <!-- Dynamische Ebene-->
+                                    <Canvas Name="RadarOverlayCanvas"
+                                            Width="620"
+                                            Height="620"
+                                            Loaded="RadarCanvas_Loaded"/>
+                                </Grid>
+                            </Border>
 
-                                <!-- Dynamische Ebene -->
-                                <Canvas Name="RadarOverlayCanvas"
-                                        Width="420"
-                                        Height="420"
-                                        Loaded="RadarCanvas_Loaded"/>
-                            </Grid>
-                        </Border>
+                            <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                                <!--Range-->
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="RANGE (km)"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource HoloCyanBrush}"/>
+                                    <Slider Minimum="5"
+                                            Maximum="150"
+                                            Width="260"
+                                            Margin="8,0,0,0"
+                                            Value="{Binding RadarRangekm, Mode=TwoWay}"/>
+                                    <TextBlock Text="{Binding RadarRangekm, StringFormat=F0}"
+                                               Margin="8,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource HoloCyanBrush}"/>
+                                </StackPanel>
 
-                        <StackPanel Orientation="Vertical" Margin="0,10,0,0">
-                            <!-- Range -->
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="RANGE (km):"
-                           VerticalAlignment="Center"
-                           Foreground="{StaticResource HoloCyanBrush}"/>
-                                <Slider Minimum="5"
-                        Maximum="50"
-                        Width="240"
-                        Margin="8,0,0,0"
-                        Value="{Binding RadarRangeKm, Mode=TwoWay}"/>
-                                <TextBlock Text="{Binding RadarRangeKm, StringFormat=F0}"
-                           Margin="8,0,0,0"
-                           VerticalAlignment="Center"
-                           Foreground="{StaticResource HoloCyanBrush}"/>
-                            </StackPanel>
+                                <!--Radar mode-->
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock Text="MODE:"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource HoloCyanBrush}"/>
+                                    <ComboBox Width="100"
+                                              Margin="8,0,0,0"
+                                              ItemsSource="{Binding RadarModes}"
+                                              SelectedItem="{Binding RadarMode, Mode=TwoWay}"/>
 
-                            <!-- Radar mode -->
-                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                <TextBlock Text="MODE:"
-                           VerticalAlignment="Center"
-                           Foreground="{StaticResource HoloCyanBrush}"/>
-                                <ComboBox Width="180"
-                          Margin="8,0,0,0"
-                          ItemsSource="{Binding RadarModes}"
-                          SelectedItem="{Binding RadarMode, Mode=TwoWay}"/>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
+                </Expander>
+
+
+
+
 
                 <!-- Proximity-Tabelle -->
                 <Border Padding="10" CornerRadius="10"

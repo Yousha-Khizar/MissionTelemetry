@@ -117,6 +117,7 @@ namespace MissionTelemetry.Wpf
         {
             if (DataContext is not TelemetryViewModel vm)
                 return;
+            Title = $"Mission Telemetry Console - Mode: {vm.RadarMode}";
 
             double W = RadarOverlayCanvas.ActualWidth > 0 ? RadarOverlayCanvas.ActualWidth : RadarOverlayCanvas.Width;
             double H = RadarOverlayCanvas.ActualHeight > 0 ? RadarOverlayCanvas.ActualHeight : RadarOverlayCanvas.Height;
@@ -141,31 +142,144 @@ namespace MissionTelemetry.Wpf
                 double x = cx + c.Y_km * scale;
                 double y = cy - c.X_km * scale;
 
+                if(vm.RadarMode == RadarDisplayMode.Forecast)
+                {
+                    var forecast = new Polyline
+                    {
+                        Stroke = Brushes.White,
+                        StrokeThickness = 2.8,
+                        Opacity = 0.95,                        
+                        StrokeDashArray = new DoubleCollection { 6, 3 }
+                        //Effect = (Effect)FindResource("HoloGlow")
+                    };
+
+                    Point lastPoint = new Point(x, y);
+
+                    // Forecast for 0 - 120, all 5 secs
+                    for(int t=0; t<= 120; t +=5)
+                    {
+                        double futureX_km = c.X_km + c.Vx_kms * t;
+                        double futureY_km = c.Y_km + c.Vy_kms * t;
+
+                        double fx = cx + futureY_km * scale;
+                        double fy = cy - futureX_km * scale;
+
+                        var p = new Point(fx, fy);
+                        forecast.Points.Add(p);
+                        lastPoint = p;
+                    }
+                    RadarOverlayCanvas.Children.Add(forecast);
+
+                    // marking Endpoint of forcast
+
+                    var endDot = new Ellipse
+                    {
+                        Width = 10,
+                        Height = 10,
+                        Fill = Brushes.White,
+                        Opacity = 0.95,
+                        Effect = (Effect)FindResource("StrongGlow")
+                    };
+                    Canvas.SetLeft(endDot, lastPoint.X - 5);
+                    Canvas.SetTop(endDot, lastPoint.Y - 5);
+                    RadarOverlayCanvas.Children.Add(endDot);
+                }
+
                 Brush dotBrush = ContactNormal;
                 if (c.CPA_Dist_km < 3.0 || c.Distance_km < 5.0)
                     dotBrush = ContactWarn;
                 if (c.CPA_Dist_km < 1.0 || c.Distance_km < 2.0)
                     dotBrush = ContactAlarm;
 
-                // Punkt
-                var dot = new Ellipse
-                {
-                    Width = 8,
-                    Height = 8,
-                    Fill = dotBrush,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 0.7,
-                    Opacity = 0.95,
-                    Effect = (Effect)FindResource("StrongGlow")
-                };
-                Canvas.SetLeft(dot, x - 4);
-                Canvas.SetTop(dot, y - 4);
-                RadarOverlayCanvas.Children.Add(dot);
-
-                // Velocity-Pfeil
-                double velScalePx = 28.0;
+                // Richtung aus Geschwindigkeitsvektor ableiten
+                double velScalePx = 36.0;
                 double vx = c.Vy_kms * velScalePx;
                 double vy = -c.Vx_kms * velScalePx;
+
+                // 1) Äußerer Holografie-Ring
+                var outerRing = new Ellipse
+                {
+                    Width = 18,
+                    Height = 18,
+                    Stroke = dotBrush,
+                    StrokeThickness = 2.0,
+                    Fill = Brushes.Transparent,
+                    Opacity = 0.9,
+                    Effect = (Effect)FindResource("HoloGlow")
+                };
+                Canvas.SetLeft(outerRing, x - 9);
+                Canvas.SetTop(outerRing, y - 9);
+                RadarOverlayCanvas.Children.Add(outerRing);
+
+                // 2) Innerer Kern
+                var core = new Ellipse
+                {
+                    Width = 7,
+                    Height = 7,
+                    Fill = Brushes.White,
+                    Stroke = dotBrush,
+                    StrokeThickness = 1.0,
+                    Opacity = 0.98,
+                    Effect = (Effect)FindResource("StrongGlow")
+                };
+                Canvas.SetLeft(core, x - 3.5);
+                Canvas.SetTop(core, y - 3.5);
+                RadarOverlayCanvas.Children.Add(core);
+
+                // 3) Alarm-Ring zusätzlich für kritische Objekte
+                if (c.CPA_Dist_km < 1.0 || c.Distance_km < 2.0)
+                {
+                    var dangerRing = new Ellipse
+                    {
+                        Width = 26,
+                        Height = 26,
+                        Stroke = ContactAlarm,
+                        StrokeThickness = 1.4,
+                        Fill = Brushes.Transparent,
+                        Opacity = 0.8,
+                        Effect = (Effect)FindResource("StrongGlow")
+                    };
+                    Canvas.SetLeft(dangerRing, x - 13);
+                    Canvas.SetTop(dangerRing, y - 13);
+                    RadarOverlayCanvas.Children.Add(dangerRing);
+                }
+
+                // 4) Velocity-Linie
+                var velocityLine = new Line
+                {
+                    X1 = x,
+                    Y1 = y,
+                    X2 = x + vx,
+                    Y2 = y + vy,
+                    Stroke = HoloArrow,
+                    StrokeThickness = 2.2,
+                    Opacity = 0.95,
+                    Effect = (Effect)FindResource("HoloGlow")
+                };
+                RadarOverlayCanvas.Children.Add(velocityLine);
+
+                // 5) Chevron / Track-Symbol in Bewegungsrichtung
+                var chevron = TrackChevron(x, y, vx, vy, 16, 12, dotBrush);
+                RadarOverlayCanvas.Children.Add(chevron);
+
+                // 6) Kleiner Pfeilkopf an der Velocity-Linie
+                RadarOverlayCanvas.Children.Add(ArrowHead(x + vx, y + vy, x, y, 8, 18, HoloArrow));
+
+                // 7) Label
+                var label = new TextBlock
+                {
+                    Text = $"TRK-{c.Id:00}  {c.Distance_km:F1} km  {c.Bearing_deg:F0}°  CPA {c.CPA_Dist_km:F1} km  TCPA {(double.IsInfinity(c.TCPA_s) ? "∞" : $"{c.TCPA_s:F0}s")}",
+                    Foreground = dotBrush,
+                    FontWeight = FontWeights.SemiBold
+                };
+                Canvas.SetLeft(label, x + 14);
+                Canvas.SetTop(label, y - 14);
+                RadarOverlayCanvas.Children.Add(label);
+
+                // Velocity-Pfeil
+                //double velScalePx = 28.0;
+                //double vx = c.Vy_kms * velScalePx;
+                //double vy = -c.Vx_kms * velScalePx;
 
                 var line = new Line
                 {
@@ -183,14 +297,14 @@ namespace MissionTelemetry.Wpf
                 RadarOverlayCanvas.Children.Add(ArrowHead(x + vx, y + vy, x, y, 9, 26, HoloArrow));
 
                 // Label
-                var label = new TextBlock
-                {
-                    Text = $"#{c.Id}  {c.Distance_km:F1}km  {c.Bearing_deg:F0}°  CPA {c.CPA_Dist_km:F1}km @{(double.IsInfinity(c.TCPA_s) ? "∞" : $"{c.TCPA_s:F0}s")}",
-                    Foreground = HoloGrid
-                };
-                Canvas.SetLeft(label, x + 10);
-                Canvas.SetTop(label, y - 12);
-                RadarOverlayCanvas.Children.Add(label);
+                //var label = new TextBlock
+                //{
+                //    Text = $"#{c.Id}  {c.Distance_km:F1}km  {c.Bearing_deg:F0}°  CPA {c.CPA_Dist_km:F1}km @{(double.IsInfinity(c.TCPA_s) ? "∞" : $"{c.TCPA_s:F0}s")}",
+                //    Foreground = HoloGrid
+                //};
+                //Canvas.SetLeft(label, x + 10);
+                //Canvas.SetTop(label, y - 12);
+                //RadarOverlayCanvas.Children.Add(label);
             }
         }
 
@@ -217,6 +331,39 @@ namespace MissionTelemetry.Wpf
                 Points = new PointCollection { tip, p2, p3 },
                 Stroke = brush,
                 Fill = brush,
+                Opacity = 0.95,
+                Effect = (Effect)FindResource("HoloGlow")
+            };
+        }
+
+        private Polygon TrackChevron(double centerX, double centerY, double dirX, double dirY, double length, double width, Brush brush)
+        {
+            double L = Math.Sqrt(dirX * dirX + dirY * dirY);
+            if (L < 1e-6) L = 1e-6;
+
+            dirX /= L;
+            dirY /= L;
+
+            double qx = -dirY;
+            double qy = dirX;
+
+            var tip = new Point(centerX + dirX * (length * 0.6), centerY + dirY * (length * 0.6));
+            
+            var left = new Point(centerX - dirX * (length * 0.4) + qx * (width * 0.5),
+                                 centerY - dirY * (length * 0.4) + qy * (width * 0.5));
+
+            var mid = new Point(centerX - dirX * (length * 0.1),
+                                centerY - dirY * (length * 0.1));
+
+            var right = new Point(centerX - dirX * (length * 0.4) - qx * (width * 0.5),
+                                  centerY - dirY * (length * 0.4) - qy * (width * 0.5));
+
+            return new Polygon
+            {
+                Points = new PointCollection { left, tip, right, mid },
+                Stroke = brush,
+                Fill = Brushes.Transparent,
+                StrokeThickness = 1.6,
                 Opacity = 0.95,
                 Effect = (Effect)FindResource("HoloGlow")
             };
