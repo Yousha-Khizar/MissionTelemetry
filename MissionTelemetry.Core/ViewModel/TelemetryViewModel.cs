@@ -92,6 +92,12 @@ public sealed class TelemetryViewModel : ObservableObject
 
     private double _radarRangeKm = 30.0;
     public double RadarRangeKm { get => _radarRangeKm; set => Set(ref _radarRangeKm, value); }
+    private bool _isRadarExpanded;
+    public bool IsRadarExpanded
+    {
+        get => _isRadarExpanded;
+        set => Set(ref _isRadarExpanded, value);
+    }
 
     public Severity HighestSeverity =>
         ActiveAlarms.Any(a => a.Severity == Severity.Alarm) ? Severity.Alarm :

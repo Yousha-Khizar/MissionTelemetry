@@ -164,71 +164,76 @@
 
             <!-- Rechts: Radar + Proximity -->
             <StackPanel Grid.Column="1">
-                <!-- Radar -->
-                <Expander Header="RADAR"
-                          IsExpanded="True"
-                          Margin="0,0,0,10"
-                          Foreground="{StaticResource HoloCyanBrush}">
-                    <Border Padding="10"
-                            CornerRadius="10"
-                            Background="#0E1117"
-                            BorderBrush="#2A2F3A"
-                            BorderThickness="1"
-                            Effect="{StaticResource StrongGlow}">
-                        <StackPanel>
-                            <Border Margin="0,10,0,0"
-                                    BorderBrush="#334"
-                                    BorderThickness="1"
-                                    CornerRadius="10"
-                                    Background="#0C1016"
-                                    HorizontalAlignment="Center">
-                                <Grid Width="620" Height="620">
-                                    <!-- Statische Ebene -->
-                                    <Canvas Name="RadarBackgroundCanvas"
-                                            Width="620"
-                                            Height="620"
-                                            IsHitTestVisible="False"/>
+                <!-- Mini Radar Preview -->
+                <Border Margin="0,0,0,10"
+                        Padding="10"
+                        CornerRadius="10"
+                        Background="#0E1117"
+                        BorderBrush="#2A2F3A"
+                        BorderThickness="1"
+                        Effect="{StaticResource StrongGlow}">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="TACTICAL RADAR PREVIEW"
+                                       FontSize="16"
+                                       Foreground="{StaticResource HoloCyanBrush}"
+                                       DockPanel.Dock="Left"/>
+                            <Button Content="OPEN RADAR"
+                                    Width="120"
+                                    Height="32"
+                                    HorizontalAlignment="Right"
+                                    Click="OpenRadar_Click"/>
+                        </DockPanel>
 
-                                    <!-- Dynamische Ebene-->
-                                    <Canvas Name="RadarOverlayCanvas"
-                                            Width="620"
-                                            Height="620"
-                                            Loaded="RadarCanvas_Loaded"/>
-                                </Grid>
-                            </Border>
+                        <Border Margin="0,10,0,0"
+                                BorderBrush="#334"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Background="#0C1016"
+                                HorizontalAlignment="Center">
+                            <Grid Width="300" Height="300">
+                                <!-- Statische Ebene Mini -->
+                                <Canvas Name="MiniRadarBackgroundCanvas"
+                                        Width="300"
+                                        Height="300"
+                                        IsHitTestVisible="False"/>
 
-                            <StackPanel Orientation="Vertical" Margin="0,10,0,0">
-                                <!--Range-->
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="RANGE (km)"
-                                               VerticalAlignment="Center"
-                                               Foreground="{StaticResource HoloCyanBrush}"/>
-                                    <Slider Minimum="5"
-                                            Maximum="150"
-                                            Width="260"
-                                            Margin="8,0,0,0"
-                                            Value="{Binding RadarRangekm, Mode=TwoWay}"/>
-                                    <TextBlock Text="{Binding RadarRangekm, StringFormat=F0}"
-                                               Margin="8,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Foreground="{StaticResource HoloCyanBrush}"/>
-                                </StackPanel>
+                                <!-- Dynamische Ebene Mini -->
+                                <Canvas Name="MiniRadarOverlayCanvas"
+                                        Width="300"
+                                        Height="300"
+                                        Loaded="RadarCanvas_Loaded"/>
+                            </Grid>
+                        </Border>
 
-                                <!--Radar mode-->
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <TextBlock Text="MODE:"
-                                               VerticalAlignment="Center"
-                                               Foreground="{StaticResource HoloCyanBrush}"/>
-                                    <ComboBox Width="100"
-                                              Margin="8,0,0,0"
-                                              ItemsSource="{Binding RadarModes}"
-                                              SelectedItem="{Binding RadarMode, Mode=TwoWay}"/>
+                        <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="RANGE (km):"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource HoloCyanBrush}"/>
+                                <Slider Minimum="5"
+                                        Maximum="150"
+                                        Width="220"
+                                        Margin="8,0,0,0"
+                                        Value="{Binding RadarRangeKm, Mode=TwoWay}"/>
+                                <TextBlock Text="{Binding RadarRangeKm, StringFormat=F0}"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource HoloCyanBrush}"/>
+                            </StackPanel>
 
-                                </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock Text="MODE:"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource HoloCyanBrush}"/>
+                                <ComboBox Width="180"
+                                          Margin="8,0,0,0"
+                                          ItemsSource="{Binding RadarModes}"
+                                          SelectedItem="{Binding RadarMode, Mode=TwoWay}"/>
                             </StackPanel>
                         </StackPanel>
-                    </Border>
-                </Expander>
+                    </StackPanel>
+                </Border>
 
 
 
@@ -257,5 +262,74 @@
                 </Border>
             </StackPanel>
         </Grid>
+
+        <!-- Fullscreen / Center Radar Overlay -->
+        <Grid Grid.RowSpan="3"
+      Panel.ZIndex="100"
+      Background="#88000000"
+      Visibility="{Binding IsRadarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          Width="900"
+          Height="820">
+                <Border Background="#10141C"
+                BorderBrush="{StaticResource HoloCyanBrush}"
+                BorderThickness="2"
+                CornerRadius="14"
+                Padding="14"
+                Effect="{StaticResource StrongGlow}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="HOLOGRAPHIC RADAR - EXPANDED VIEW"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource HoloCyanBrush}"
+                               DockPanel.Dock="Left"/>
+                            <Button Content="CLOSE"
+                            Width="100"
+                            Height="32"
+                            HorizontalAlignment="Right"
+                            Click="CloseRadar_Click"/>
+                        </DockPanel>
+
+                        <!-- Large radar -->
+                        <Border Grid.Row="1"
+                        BorderBrush="#334"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Background="#0C1016"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                            <Grid Width="760" Height="760">
+                                <!-- Statische Ebene groß -->
+                                <Canvas Name="FullRadarBackgroundCanvas"
+                                Width="760"
+                                Height="760"
+                                IsHitTestVisible="False"/>
+
+                                <!-- Dynamische Ebene groß -->
+                                <Canvas Name="FullRadarOverlayCanvas"
+                                Width="760"
+                                Height="760"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Footer info -->
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBlock Text="Expanded radar shows full tactical view with forecast and labels."
+                               Foreground="{StaticResource TextDimBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
     </Grid>
 </Window>
