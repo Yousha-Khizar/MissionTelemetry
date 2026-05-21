@@ -16,11 +16,11 @@
 
         <!-- Titel -->
         <Border Grid.Row="0" Margin="14,14,14,0" Padding="12" CornerRadius="10"
-            Background="#101218" BorderBrush="#2A2F3A" BorderThickness="1"
-            Effect="{StaticResource HoloGlow}">
+                Background="#101218" BorderBrush="#2A2F3A" BorderThickness="1"
+                Effect="{StaticResource HoloGlow}">
             <DockPanel>
                 <TextBlock Text="MISSION TELEMETRY CONSOLE" FontSize="22" FontWeight="Black"
-                   Foreground="{StaticResource RebelGoldBrush}" />
+                           Foreground="{StaticResource RebelGoldBrush}" />
                 
             </DockPanel>
         </Border>
@@ -36,8 +36,8 @@
 
             <!-- Ampel -->
             <Border Margin="26,0,0,0" Padding="8,4" CornerRadius="8"
-              BorderBrush="#333945" BorderThickness="1" Background="#0E1117"
-              Effect="{StaticResource HoloGlow}">
+                    BorderBrush="#333945" BorderThickness="1" Background="#0E1117"
+                    Effect="{StaticResource HoloGlow}">
                 <StackPanel Orientation="Horizontal">
                     <Ellipse Width="14" Height="14">
                         <Ellipse.Style>
@@ -59,8 +59,8 @@
             </Border>
 
             <TextBlock Text="{Binding IsRunning, StringFormat=  |  RUNNING: {0}}"
-                 Margin="16,0,0,0" VerticalAlignment="Center"
-                 Foreground="{StaticResource HoloCyanBrush}"/>
+                       Margin="16,0,0,0" VerticalAlignment="Center"
+                       Foreground="{StaticResource HoloCyanBrush}"/>
         </StackPanel>
 
         <!-- Hauptbereich -->
@@ -83,8 +83,8 @@
 
                 
                 <Border Grid.Row="0" Margin="0,0,10,10" Padding="10" CornerRadius="10"
-          Background="{StaticResource PanelGreyBrush}" BorderBrush="#2A2F3A"
-          BorderThickness="1" Effect="{StaticResource HoloGlow}">
+                        Background="{StaticResource PanelGreyBrush}" BorderBrush="#2A2F3A"
+                        BorderThickness="1" Effect="{StaticResource HoloGlow}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -94,14 +94,14 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Text="TELEMETRY FEED" FontSize="16"
-                 Foreground="{StaticResource RebelGoldBrush}" />
+                                   Foreground="{StaticResource RebelGoldBrush}" />
 
                         <DataGrid Grid.Row="1" Margin="0,10,0,0"
-                ItemsSource="{Binding Frames}"
-                AutoGenerateColumns="False"
-                IsReadOnly="True"
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                ScrollViewer.CanContentScroll="True">
+                                  ItemsSource="{Binding Frames}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.CanContentScroll="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="#" Binding="{Binding Sequence}" Width="60"/>
                                 <DataGridTextColumn Header="UTC" Binding="{Binding TimeStamp}" Width="180"/>
@@ -119,13 +119,13 @@
 
                 <!-- Active Alarms  -->
                 <Border Grid.Row="1" Margin="0,0,10,0" Padding="10" CornerRadius="10"
-          Background="{StaticResource PanelGreyBrush}" BorderBrush="#2A2F3A"
-          BorderThickness="1" Effect="{StaticResource HoloGlow}">
+                        Background="{StaticResource PanelGreyBrush}" BorderBrush="#2A2F3A"
+                        BorderThickness="1" Effect="{StaticResource HoloGlow}">
                     <StackPanel>
                         <TextBlock Text="ACTIVE ALARMS" FontSize="16" Foreground="{StaticResource RebelGoldBrush}" />
                         <ListView Margin="0,10,0,0" Height="260"
-                ItemsSource="{Binding ActiveAlarms}"
-                SelectedItem="{Binding SelectedAlarm, Mode=TwoWay}">
+                                  ItemsSource="{Binding ActiveAlarms}"
+                                  SelectedItem="{Binding SelectedAlarm, Mode=TwoWay}">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="Background" Value="#161A22"/>
@@ -265,19 +265,19 @@
 
         <!-- Fullscreen / Center Radar Overlay -->
         <Grid Grid.RowSpan="3"
-      Panel.ZIndex="100"
-      Background="#88000000"
-      Visibility="{Binding IsRadarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
+              Panel.ZIndex="100"
+              Background="#88000000"
+              Visibility="{Binding IsRadarExpanded, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid HorizontalAlignment="Center"
-          VerticalAlignment="Center"
-          Width="900"
-          Height="820">
+                  VerticalAlignment="Center"
+                  Width="900"
+                  Height="820">
                 <Border Background="#10141C"
-                BorderBrush="{StaticResource HoloCyanBrush}"
-                BorderThickness="2"
-                CornerRadius="14"
-                Padding="14"
-                Effect="{StaticResource StrongGlow}">
+                        BorderBrush="{StaticResource HoloCyanBrush}"
+                        BorderThickness="2"
+                        CornerRadius="14"
+                        Padding="14"
+                        Effect="{StaticResource StrongGlow}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -288,43 +288,43 @@
                         <!-- Header -->
                         <DockPanel Grid.Row="0" Margin="0,0,0,10">
                             <TextBlock Text="HOLOGRAPHIC RADAR - EXPANDED VIEW"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource HoloCyanBrush}"
-                               DockPanel.Dock="Left"/>
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource HoloCyanBrush}"
+                                       DockPanel.Dock="Left"/>
                             <Button Content="CLOSE"
-                            Width="100"
-                            Height="32"
-                            HorizontalAlignment="Right"
-                            Click="CloseRadar_Click"/>
+                                    Width="100"
+                                    Height="32"
+                                    HorizontalAlignment="Right"
+                                    Click="CloseRadar_Click"/>
                         </DockPanel>
 
                         <!-- Large radar -->
                         <Border Grid.Row="1"
-                        BorderBrush="#334"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Background="#0C1016"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                                BorderBrush="#334"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Background="#0C1016"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
                             <Grid Width="760" Height="760">
                                 <!-- Statische Ebene groß -->
                                 <Canvas Name="FullRadarBackgroundCanvas"
-                                Width="760"
-                                Height="760"
-                                IsHitTestVisible="False"/>
+                                        Width="760"
+                                        Height="760"
+                                        IsHitTestVisible="False"/>
 
                                 <!-- Dynamische Ebene groß -->
                                 <Canvas Name="FullRadarOverlayCanvas"
-                                Width="760"
-                                Height="760"/>
+                                        Width="760"
+                                        Height="760"/>
                             </Grid>
                         </Border>
 
                         <!-- Footer info -->
                         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
                             <TextBlock Text="Expanded radar shows full tactical view with forecast and labels."
-                               Foreground="{StaticResource TextDimBrush}"/>
+                                       Foreground="{StaticResource TextDimBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

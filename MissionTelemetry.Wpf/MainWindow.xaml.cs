@@ -279,17 +279,34 @@ namespace MissionTelemetry.Wpf
                     var forecast = new Polyline
                     {
                         Stroke = Brushes.White,
-                        StrokeThickness = 2.8,
+                        StrokeThickness = 3.0,
                         Opacity = 0.95,
-                        StrokeDashArray = new DoubleCollection { 6, 3 }
+                        StrokeDashArray = new DoubleCollection { 7, 3 },
+                        Effect = (Effect)FindResource("HoloGlow")
                     };
 
                     Point lastPoint = new Point(x, y);
 
-                    for (int t = 0; t <= 120; t += 5)
+                    // Ausgangswerte
+                    double baseX = c.X_km;
+                    double baseY = c.Y_km;
+                    double vx_kms = c.Vx_kms;
+                    double vy_kms = c.Vy_kms;
+
+                    // Leichte künstliche Kurvenänderung für die Prognose
+                    // Je weiter in die Zukunft, desto stärker die Drehung
+                    for (int t = 0; t <= 180; t += 5)
                     {
-                        double futureX_km = c.X_km + c.Vx_kms * t;
-                        double futureY_km = c.Y_km + c.Vy_kms * t;
+                        double turnFactor = 0.015 * t; // leichte Krümmung
+                        double cos = Math.Cos(turnFactor);
+                        double sin = Math.Sin(turnFactor);
+
+                        // Geschwindigkeitsvektor leicht rotieren
+                        double curvedVx = vx_kms * cos - vy_kms * sin;
+                        double curvedVy = vx_kms * sin + vy_kms * cos;
+
+                        double futureX_km = baseX + curvedVx * t;
+                        double futureY_km = baseY + curvedVy * t;
 
                         double fx = cx + futureY_km * scale;
                         double fy = cy - futureX_km * scale;
@@ -301,16 +318,19 @@ namespace MissionTelemetry.Wpf
 
                     FullRadarOverlayCanvas.Children.Add(forecast);
 
+                    // Endpunkt markieren
                     var endDot = new Ellipse
                     {
-                        Width = 10,
-                        Height = 10,
+                        Width = 12,
+                        Height = 12,
                         Fill = Brushes.White,
-                        Opacity = 0.95,
+                        Stroke = dotBrush,
+                        StrokeThickness = 1.4,
+                        Opacity = 0.98,
                         Effect = (Effect)FindResource("StrongGlow")
                     };
-                    Canvas.SetLeft(endDot, lastPoint.X - 5);
-                    Canvas.SetTop(endDot, lastPoint.Y - 5);
+                    Canvas.SetLeft(endDot, lastPoint.X - 6);
+                    Canvas.SetTop(endDot, lastPoint.Y - 6);
                     FullRadarOverlayCanvas.Children.Add(endDot);
                 }
 
