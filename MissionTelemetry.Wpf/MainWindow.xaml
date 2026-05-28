@@ -322,9 +322,12 @@
                         </Border>
 
                         <!-- Footer info -->
-                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
+                        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,12,0,0">
                             <TextBlock Text="Expanded radar shows full tactical view with forecast and labels."
                                        Foreground="{StaticResource TextDimBrush}"/>
+                            <TextBlock Text="{Binding RadarRangeKm, StringFormat=Base Range Setting: {0:F0} km}"
+                                       Foreground="{StaticResource HoloCyanBrush}"
+                                       Margin="0,4,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>

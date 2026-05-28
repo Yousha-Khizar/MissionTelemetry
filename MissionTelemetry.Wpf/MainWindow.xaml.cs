@@ -246,7 +246,30 @@ namespace MissionTelemetry.Wpf
             double H = FullRadarOverlayCanvas.ActualHeight > 0 ? FullRadarOverlayCanvas.ActualHeight : FullRadarOverlayCanvas.Height;
             double cx = W / 2;
             double cy = H / 2;
-            double scale = Math.Min(cx, cy) / vm.RadarRangeKm;
+
+            // Dynamischer Darstellungsradius für das große Radar
+            double displayRangeKm = vm.RadarRangeKm;
+
+            var allContacts = vm.Proximity.ToList();
+            if (allContacts.Count > 0)
+            {
+                double maxDistance = allContacts.Max(c => Math.Sqrt(c.X_km * c.X_km + c.Y_km * c.Y_km));
+
+                
+                double maxForecastDistance = allContacts.Max(c =>
+                {
+                    double futureX = c.X_km + c.Vx_kms * 240.0;
+                    double futureY = c.Y_km + c.Vy_kms * 240.0;
+                    return Math.Sqrt(futureX * futureX + futureY * futureY);
+                });
+
+                double neededRange = Math.Max(maxDistance, maxForecastDistance);
+
+                
+                displayRangeKm = Math.Max(vm.RadarRangeKm, neededRange * 1.15);
+            }
+
+            double scale = Math.Min(cx, cy) / displayRangeKm;
 
             FullRadarOverlayCanvas.Children.Clear();
 
