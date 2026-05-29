@@ -232,6 +232,21 @@
                                           SelectedItem="{Binding RadarMode, Mode=TwoWay}"/>
                             </StackPanel>
                         </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Text="FORECAST:"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource HoloCyanBrush}"/>
+                            <ComboBox Width="120"
+                                      Margin="8,0,0,0"
+                                      ItemsSource="{Binding ForecastHorizonOpotions}"
+                                      SelectedItem="{Binding ForecastHorizonSeconds, Mode=TwoWay}"/>
+                            <TextBlock Text="s"
+                                       Margin="8,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource HoloCyanBrush}"/>
+                                
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

@@ -29,8 +29,8 @@ public sealed class ProximityRow : ObservableObject
     public double Distance_km { get; init; }
     public double Bearing_deg { get; init; }
     public double Closing_ms { get; init; }   // Annäherung positiv
-    public double TTCA_s { get; init; }       // grob
-    public double CPA_Dist_km { get; init; }  // exakter
+    public double TTCA_s { get; init; }     
+    public double CPA_Dist_km { get; init; }  
     public double TCPA_s { get; init; }       // Zeit bis CPA
     public double X_km { get; init; }
     public double Y_km { get; init; }
