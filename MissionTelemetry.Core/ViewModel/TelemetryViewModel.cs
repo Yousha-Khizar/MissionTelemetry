@@ -99,6 +99,14 @@ public sealed class TelemetryViewModel : ObservableObject
         set => Set(ref _isRadarExpanded, value);
     }
 
+    private int _forecastHorizonSeconds = 240;
+    public int ForecastHorizonSeconds
+    {
+        get => _forecastHorizonSeconds;
+        set => Set(ref _forecastHorizonSeconds, value);
+    }
+    public int[] ForecastHorizonOptions => new[] { 60, 120, 240, 300 };
+
     public Severity HighestSeverity =>
         ActiveAlarms.Any(a => a.Severity == Severity.Alarm) ? Severity.Alarm :
         ActiveAlarms.Any(a => a.Severity == Severity.Warning) ? Severity.Warning :

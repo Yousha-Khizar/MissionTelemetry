@@ -258,8 +258,8 @@ namespace MissionTelemetry.Wpf
                 
                 double maxForecastDistance = allContacts.Max(c =>
                 {
-                    double futureX = c.X_km + c.Vx_kms * 240.0;
-                    double futureY = c.Y_km + c.Vy_kms * 240.0;
+                    double futureX = c.X_km + c.Vx_kms * vm.ForecastHorizonSeconds;
+                    double futureY = c.Y_km + c.Vy_kms * vm.ForecastHorizonSeconds;
                     return Math.Sqrt(futureX * futureX + futureY * futureY);
                 });
 
@@ -316,7 +316,7 @@ namespace MissionTelemetry.Wpf
                     double vy_kms = c.Vy_kms;
 
                     // Deutlich längere und sichtbar gekrümmte Prognose
-                    for (int t = 0; t <= 240; t += 5)
+                    for (int t = 0; t <= vm.ForecastHorizonSeconds; t += 5)
                     {
                         // leichte bis mittlere Krümmung über die Zeit
                         double turnFactor = 0.012 * t;
@@ -414,6 +414,43 @@ namespace MissionTelemetry.Wpf
                     Canvas.SetLeft(dangerRing, x - 13);
                     Canvas.SetTop(dangerRing, y - 13);
                     FullRadarOverlayCanvas.Children.Add(dangerRing);
+                }
+
+                if (!double.IsInfinity(c.TCPA_s)&& c.TCPA_s > 0)
+                {
+                    double cpaX_km = c.X_km + c.Vx_kms * c.TCPA_s;
+                    double cpaY_km = c.Y_km + c.Vy_kms * c.TCPA_s;
+
+                    double cpaCanvasX = cx + cpaY_km * scale;
+                    double cpaCanvasY = cy + cpaX_km * scale;
+
+                    var cpaMarker = new Ellipse
+                    {
+                        Width = 12,
+                        Height = 12,
+                        Stroke = Brushes.White,
+                        StrokeThickness = 2.0,
+                        Fill = Brushes.Transparent,
+                        Opacity = 0.9,
+                        Effect = (Effect)FindResource("HoloGlow")
+                    };
+                    Canvas.SetLeft(cpaMarker, cpaCanvasX - 6);
+                    Canvas.SetTop(cpaMarker, cpaCanvasY - 6);
+                    FullRadarOverlayCanvas.Children.Add(cpaMarker);
+
+                    var cpaCore = new Ellipse
+                    {
+                        Width = 4,
+                        Height = 4,
+                        Fill = Brushes.White,
+                        Opacity = 1.0
+                    };
+                    Canvas.SetLeft(cpaCore, cpaCanvasX - 2);
+                    Canvas.SetTop(cpaCore, cpaCanvasY - 2);
+                    FullRadarOverlayCanvas.Children.Add(cpaCore);
+                     
+                   
+
                 }
 
                 var velocityLine = new Line
