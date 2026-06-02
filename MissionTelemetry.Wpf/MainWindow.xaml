@@ -118,47 +118,77 @@
                 </Border>
 
                 <!-- Active Alarms  -->
-                <Border Grid.Row="1" Margin="0,0,10,0" Padding="10" CornerRadius="10"
-                        Background="{StaticResource PanelGreyBrush}" BorderBrush="#2A2F3A"
-                        BorderThickness="1" Effect="{StaticResource HoloGlow}">
-                    <StackPanel>
-                        <TextBlock Text="ACTIVE ALARMS" FontSize="16" Foreground="{StaticResource RebelGoldBrush}" />
-                        <ListView Margin="0,10,0,0" Height="260"
-                                  ItemsSource="{Binding ActiveAlarms}"
-                                  SelectedItem="{Binding SelectedAlarm, Mode=TwoWay}">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Background" Value="#161A22"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Severity}" Value="Warning">
-                                            <Setter Property="Background" Value="#2A220F"/>
-                                            <Setter Property="Foreground" Value="{StaticResource HoloAmberBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource HoloAmberBrush}"/>
-                                            <Setter Property="BorderThickness" Value="1"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Severity}" Value="Alarm">
-                                            <Setter Property="Background" Value="#2A1010"/>
-                                            <Setter Property="Foreground" Value="{StaticResource ImperialRedBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource ImperialRedBrush}"/>
-                                            <Setter Property="BorderThickness" Value="1"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Severity" DisplayMemberBinding="{Binding Severity}" Width="90"/>
-                                    <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="180"/>
-                                    <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="320"/>
-                                    <GridViewColumn Header="Value" DisplayMemberBinding="{Binding LastValue}" Width="80"/>
-                                    <GridViewColumn Header="Ack" DisplayMemberBinding="{Binding IsAcknowledged}" Width="70"/>
-                                    <GridViewColumn Header="Count" DisplayMemberBinding="{Binding Count}" Width="60"/>
-                                    <GridViewColumn Header="Seen (UTC)" DisplayMemberBinding="{Binding LastSeen}" Width="170"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </StackPanel>
-                </Border>
+                
+                <Expander Grid.Row="1"
+                          Margin="0,0,10,0"
+                          IsExpanded="False"
+                          Foreground="{StaticResource RebelGoldBrush}">
+                    <Expander.Header>
+                        <DockPanel>
+                            <TextBlock Text="ACTIVE ALARMS"
+                                       FontSize="16"
+                                       Foreground="{StaticResource RebelGoldBrush}"
+                                       DockPanel.Dock="Left"/>
+                            <Border Margin="12,0,0,0"
+                                    Padding="8,2"
+                                    CornerRadius="8"
+                                    Background="#0E1117"
+                                    BorderBrush="#333945"
+                                    BorderThickness="1"
+                                    DockPanel.Dock="Right">
+                                <TextBlock Text="{Binding ActiveAlarmCount, StringFormat=Count: {0}}"
+                                           Foreground="{StaticResource HoloCyanBrush}"
+                                           FontWeight="Bold"/>
+                            </Border>
+                        </DockPanel>
+                    </Expander.Header>
+
+                    <Border Padding="10"
+                            CornerRadius="10"
+                            Background="{StaticResource PanelGreyBrush}"
+                            BorderBrush="#2A2F3A"
+                            BorderThickness="1"
+                            Effect="{StaticResource HoloGlow}">
+                        <StackPanel>
+                            <ListView Margin="0,10,0,0"
+                                      Height="260"
+                                      ItemsSource="{Binding ActiveAlarms}"
+                                      SelectedItem="{Binding SelectedAlarm, Mode=TwoWay}">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Background" Value="#161A22"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                                <Setter Property="Background" Value="#2A220F"/>
+                                                <Setter Property="Foreground" Value="{StaticResource HoloAmberBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{StaticResource HoloAmberBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Severity}" Value="Alarm">
+                                                <Setter Property="Background" Value="#2A1010"/>
+                                                <Setter Property="Foreground" Value="{StaticResource ImperialRedBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{StaticResource ImperialRedBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Severity" DisplayMemberBinding="{Binding Severity}" Width="90"/>
+                                        <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="180"/>
+                                        <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="320"/>
+                                        <GridViewColumn Header="Value" DisplayMemberBinding="{Binding LastValue}" Width="80"/>
+                                        <GridViewColumn Header="Ack" DisplayMemberBinding="{Binding IsAcknowledged}" Width="70"/>
+                                        <GridViewColumn Header="Count" DisplayMemberBinding="{Binding Count}" Width="60"/>
+                                        <GridViewColumn Header="Seen (UTC)" DisplayMemberBinding="{Binding LastSeen}" Width="170"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </Expander>
             </Grid>
 
 
