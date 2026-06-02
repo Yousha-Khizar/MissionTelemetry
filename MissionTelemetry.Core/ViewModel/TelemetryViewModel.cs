@@ -6,6 +6,9 @@ using MissionTelemetry.Core.Infrastructure;
 using MissionTelemetry.Core.Models;
 using MissionTelemetry.Core.Services;
 using static System.Net.Mime.MediaTypeNames;
+using System.Collections.Specialized;
+
+
 
 namespace MissionTelemetry.Core.ViewModels;
 
@@ -112,6 +115,8 @@ public sealed class TelemetryViewModel : ObservableObject
         ActiveAlarms.Any(a => a.Severity == Severity.Warning) ? Severity.Warning :
         Severity.Info;
 
+    public int ActiveAlarmCount => ActiveAlarms.Count;
+
     public TelemetryViewModel(ITelemtrySource source, IAlarmEvaluator evaluator, IProximitySource prox, IAlarmManager alarms)
     {
         _source = source; _evaluator = evaluator; _prox = prox; _alarms = alarms;
@@ -121,7 +126,16 @@ public sealed class TelemetryViewModel : ObservableObject
         _source.FrameReceived += OnFrame;
         _prox.Snapshot += OnProximity;
 
-        
+        if (ActiveAlarms is INotifyCollectionChanged notifyCollection)
+        {
+            notifyCollection.CollectionChanged += (_, __) =>
+            {
+                OnPropertyChanged(nameof(ActiveAlarmCount));
+                OnPropertyChanged(nameof(HighestSeverity));
+            };
+        }
+
+
 
         StartCommand = new RelayCommand(Start, () => !IsRunning);
         StopCommand = new RelayCommand(Stop, () => IsRunning);
@@ -259,6 +273,66 @@ public sealed class TelemetryViewModel : ObservableObject
 
             OnPropertyChanged(nameof(HighestSeverity));
         }, null);
+    }
+
+    public MissionSnapshot CreateSnapshot()
+    {
+        return new MissionSnapshot
+        {
+            GeneratedAtUtc = DateTime.UtcNow,
+            IsRunning = IsRunning,
+            HighestSeverity = HighestSeverity,
+            ActiveAlarmCount = ActiveAlarms.Count,
+
+            Telemetry = Frames
+                .Take(20)
+                .Select(f => new MissionTelemetrySnapshot
+                {
+                    Sequence = f.Sequence,
+                    TimeStamp = f.TimeStamp,
+                    PowerVoltage = f.PowerVoltage,
+                    PowerCurrent = f.PowerCurrent,
+                    BoardTemp = f.BoardTemp,
+                    SNR = f.SNR,
+                    Roll = f.Roll,
+                    Pitch = f.Pitch,
+                    Yaw = f.Yaw
+                })
+                .ToList(),
+
+            Proximity = Proximity
+                .Select(p => new MissionProximitySnapshot
+                {
+                    Id = p.Id,
+                    TimeStamp = p.TimeStamp,
+                    Distance_km = p.Distance_km,
+                    Bearing_deg = p.Bearing_deg,
+                    Closing_ms = p.Closing_ms,
+                    TTCA_s = p.TTCA_s,
+                    CPA_Dist_km = p.CPA_Dist_km,
+                    TCPA_s = p.TCPA_s,
+                    X_km = p.X_km,
+                    Y_km = p.Y_km,
+                    Vx_kms = p.Vx_kms,
+                    Vy_kms = p.Vy_kms
+                })
+                .ToList(),
+
+            ActiveAlarms = ActiveAlarms
+                .Select(a => new MissionAlarmSnapshot
+                {
+                    Id = a.Id,
+                    Key = a.Key,
+                    Severity = a.Severity,
+                    Message = a.Message,
+                    LastValue = a.LastValue,
+                    LastSeen = a.LastSeen,
+                    IsAcknowledged = a.IsAcknowledged,
+                    IsLatched = a.IsLatched,
+                    Count = a.Count
+                })
+                .ToList()
+        };
     }
 
     private static string FormatS(double s) =>
